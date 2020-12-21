@@ -8,7 +8,7 @@ async function bootstrap() {
 
   const configService = await app.get(ConfigService);
 
-  setupSwagger(app, 'FlixGo API', 'List of apis', '1.0.0');
+  setupSwagger(app, 'Fluffy API', 'List of apis', '1.0.0');
 
   const port = await configService.get('port');
   const env = await configService.get('env');
