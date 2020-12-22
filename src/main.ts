@@ -1,6 +1,6 @@
-import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ConfigService } from './modules/bootstrap/services/config.service';
 import { setupSwagger } from './setups';
 
 async function bootstrap() {
