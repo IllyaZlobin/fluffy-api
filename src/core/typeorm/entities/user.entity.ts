@@ -1,0 +1,47 @@
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import { Gender, Roles } from '../enums';
+import { User } from '../interfaces/user.model';
+import { AbstractEntity } from './abstract.entity';
+import { CountryEntity } from './country.entity';
+
+@Entity('users')
+export class UserEntity extends AbstractEntity implements User {
+  @Column({ type: 'varchar' })
+  @Index()
+  firstName: string;
+
+  @Column({ type: 'varchar' })
+  @Index()
+  lastName: string;
+
+  @Column({ type: 'varchar' })
+  @Index({ unique: true })
+  email: string;
+
+  @Column({ type: 'enum', enum: Roles })
+  role: Roles;
+
+  @Column({ type: 'enum', enum: Gender })
+  gender: Gender;
+
+  @Column({ type: 'varchar' })
+  phone: string;
+
+  @Column({ type: 'varchar', length: 100 })
+  zipCode: string;
+
+  @Column({ type: 'varchar' })
+  @Index()
+  address;
+
+  @ManyToOne(
+    () => CountryEntity,
+    country => country.users,
+    {
+      cascade: ['insert', 'update'],
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    },
+  )
+  country: CountryEntity;
+}
