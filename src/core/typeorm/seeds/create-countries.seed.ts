@@ -1,6 +1,6 @@
 import { Connection } from 'typeorm';
 import { Factory, Seeder } from 'typeorm-seeding';
-import { Country } from '../entities';
+import { CountryEntity } from '../entities';
 import { COUNTRIES } from '../factories/country.factory';
 
 export default class CreateCountriesSeed implements Seeder {
@@ -8,7 +8,7 @@ export default class CreateCountriesSeed implements Seeder {
     await connection
       .createQueryBuilder()
       .insert()
-      .into(Country)
+      .into(CountryEntity)
       .values(COUNTRIES)
       .execute();
   }
