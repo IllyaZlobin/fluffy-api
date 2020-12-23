@@ -3,6 +3,7 @@ import { Gender, Roles } from '../enums';
 import { User } from '../interfaces/user.model';
 import { AbstractEntity } from './abstract.entity';
 import { CountryEntity } from './country.entity';
+import * as bcrypt from 'bcrypt';
 
 @Entity('users')
 export class UserEntity extends AbstractEntity implements User {
@@ -17,6 +18,9 @@ export class UserEntity extends AbstractEntity implements User {
   @Column({ type: 'varchar' })
   @Index({ unique: true })
   email: string;
+
+  @Column({ type: 'varchar' })
+  password: string;
 
   @Column({ type: 'enum', enum: Roles })
   role: Roles;
@@ -44,4 +48,18 @@ export class UserEntity extends AbstractEntity implements User {
     },
   )
   country: CountryEntity;
+
+  private async generatePassword(password: string) {
+    const salt = Number.parseInt(process.env.password_salt);
+    const hash = await bcrypt.hash(password, salt);
+    return hash;
+  }
+
+  async validatePassword(password: string) {
+    return await bcrypt.compare(password, this.password);
+  }
+
+  async setPassword(password: string) {
+    this.password = await this.generatePassword(password);
+  }
 }
