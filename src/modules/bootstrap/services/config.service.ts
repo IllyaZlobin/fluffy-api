@@ -44,7 +44,7 @@ export class ConfigService {
       username: this.get('db_username'),
       password: this.get('db_password'),
       database: this.get('db_name'),
-      synchronize: false,
+      synchronize: true,
       logger: 'simple-console',
       entities: DatabaseEntities,
       migrationsTableName: 'custom_migration_table',
