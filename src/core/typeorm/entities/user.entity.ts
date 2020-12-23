@@ -1,9 +1,10 @@
-import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import { Gender, Roles } from '../enums';
 import { User } from '../interfaces/user.model';
 import { AbstractEntity } from './abstract.entity';
 import { CountryEntity } from './country.entity';
 import * as bcrypt from 'bcrypt';
+import { UserSessionEntity } from './userSession.entity';
 
 @Entity('users')
 export class UserEntity extends AbstractEntity implements User {
@@ -48,6 +49,15 @@ export class UserEntity extends AbstractEntity implements User {
     },
   )
   country: CountryEntity;
+
+  @OneToMany(
+    () => UserSessionEntity,
+    userSession => userSession.user,
+    {
+      cascade: ['update', 'insert'],
+    },
+  )
+  sessions: UserSessionEntity[];
 
   private async generatePassword(password: string) {
     const salt = Number.parseInt(process.env.password_salt);
