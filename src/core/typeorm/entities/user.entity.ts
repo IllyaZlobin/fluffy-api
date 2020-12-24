@@ -65,7 +65,7 @@ export class UserEntity extends AbstractEntity implements User {
     return hash;
   }
 
-  async validatePassword(password: string) {
+  async validatePassword(password: string): Promise<boolean> {
     return await bcrypt.compare(password, this.password);
   }
 
