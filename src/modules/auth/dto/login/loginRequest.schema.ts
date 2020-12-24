@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi';
+import * as Joi from '@hapi/joi';
 import { LoginRequest } from './login.request';
 
 export const LoginRequestSchema = Joi.object<LoginRequest>({
