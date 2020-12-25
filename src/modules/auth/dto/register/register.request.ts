@@ -1,14 +1,9 @@
-import { Gender, Roles } from 'src/core';
+import { User } from '../../../../core/typeorm';
 
-export class RegisterRequest {
-  firstname: string;
-  lastname: string;
+export class RegisterRequest implements User {
+  firstName: string;
   email: string;
   password: string;
-  role: Roles;
-  gender: Gender;
   phone: string;
-  zipCode: string;
-  address: string;
-  country: number;
+  countryId: number;
 }

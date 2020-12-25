@@ -1,41 +1,71 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { UserEntity } from '../../core/typeorm/entities/user.entity';
-import { AuthUser, Gender, IpAddress, JwtAuthGuard, JwtPayload, Roles } from '../../core';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthUser, IpAddress, JwtAuthGuard, JwtPayload } from '../../core';
 import { LoginRequest } from './dto/login/login.request';
 import { AuthService } from './services/auth.service';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { RegisterRequest } from './dto/register/register.request';
-import { Request } from 'express';
+import { LoginResponse } from './dto/login/login.response';
+import { RegisterResponse } from './dto/register/register.response';
 
 @Controller('auth')
+@ApiTags('auth')
 export class AuthController {
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly authService: AuthService,
-    @InjectRepository(UserEntity)
-    private readonly userRepo: Repository<UserEntity>,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('/login')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Return tokens pair',
+    type: LoginResponse,
+  })
   async login(@IpAddress() ipAddress: string, @Body() model: LoginRequest) {
-    const response = await this.authService.login(model, ipAddress);
+    const { accessToken, refreshToken } = await this.authService.login(
+      model,
+      ipAddress,
+    );
+    const response = new LoginResponse(accessToken, refreshToken);
     return response;
+  }
+
+  @Get('/refresh')
+  @ApiUnauthorizedResponse({
+    description: 'Return 401 if passed token is not valid',
+  })
+  @ApiOkResponse({
+    description: 'Return tokens pair',
+  })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async refresh(@AuthUser() user: JwtPayload) {
+    const { accessToken, refreshToken } = await this.authService.refreshToken(
+      user,
+    );
+    return { accessToken, refreshToken };
   }
 
   @Post('/register')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Return new user',
+    type: RegisterResponse,
+  })
   async register(@Body() model: RegisterRequest) {
-    const response = await this.authService.register(model);
+    const user = await this.authService.register(model);
+    const response = new RegisterResponse(user);
     return response;
-  }
-
-  @Get('/info')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  async getInfo(@AuthUser() user: JwtPayload) {
-    console.log(user);
-    return 'hi!';
   }
 }
