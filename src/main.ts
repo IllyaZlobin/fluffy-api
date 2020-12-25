@@ -12,8 +12,10 @@ async function bootstrap() {
   setupFilters(app);
   setupPipes(app);
 
-  const port = await configService.get('port');
-  const env = await configService.get('env');
+  const port = configService.isDevelopment
+    ? configService.get('PORT')
+    : configService.get('port');
+  const env = configService.get('env');
 
   await app.listen(port);
 
