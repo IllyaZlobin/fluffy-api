@@ -8,8 +8,13 @@ import {
 import { Repository } from 'typeorm';
 import { LoginRequest } from '../dto/login/login.request';
 import { SessionService } from './session.service';
-import { FriendlyHttpException, ValidationException } from 'src/core';
+import {
+  FriendlyHttpException,
+  JwtPayload,
+  ValidationException,
+} from 'src/core';
 import { RegisterRequest } from '../dto/register/register.request';
+import { UserService } from 'src/modules/user/services/user.service';
 
 @Injectable()
 export class AuthService {
@@ -19,9 +24,13 @@ export class AuthService {
     @InjectRepository(CountryEntity)
     private readonly countryRepo: Repository<CountryEntity>,
     private readonly sessionService: SessionService,
+    private readonly userService: UserService,
   ) {}
 
-  async login(model: LoginRequest, remoteAddress: string) {
+  async login(
+    model: LoginRequest,
+    remoteAddress: string,
+  ): Promise<{ accessToken: string; refreshToken?: string }> {
     const user = await IsEntityExist<UserEntity>(this.userRepo, {
       email: model.email,
     });
@@ -35,13 +44,24 @@ export class AuthService {
     }
   }
 
-  async register(model: RegisterRequest) {
+  async refreshToken(
+    payload: JwtPayload,
+  ): Promise<{ accessToken: string; refreshToken?: string }> {
+    const user = await IsEntityExist<UserEntity>(this.userRepo, {
+      email: payload.email,
+    });
+
+    const tokens = await this.handleUserSession(user);
+    return tokens;
+  }
+
+  async register(model: RegisterRequest): Promise<UserEntity> {
     const country = await IsEntityExist<CountryEntity>(this.countryRepo, {
-      id: model.country,
+      id: model.countryId,
     });
 
     if (!country) {
-      throw new ValidationException('Country is not exist');
+      throw new ValidationException('Country is not exist', ['countryId']);
     }
 
     const existedUser = await IsEntityExist<UserEntity>(this.userRepo, {
@@ -49,23 +69,9 @@ export class AuthService {
     });
 
     if (existedUser) {
-      return { message: 'User is already exist' };
+      throw new FriendlyHttpException('User is already exist');
     } else {
-      // TODO Move this logic to user service
-      const user = new UserEntity();
-      user.firstName = model.firstname;
-      user.lastName = model.lastname;
-      user.email = model.email;
-      await user.setPassword(model.password);
-      user.role = model.role;
-      user.gender = model.gender;
-      user.phone = model.phone;
-      user.zipCode = model.zipCode;
-      user.address = model.address;
-      user.country = country;
-
-      const result = await this.userRepo.save(user);
-
+      const result = await this.userService.create({ ...model, country });
       return result;
     }
   }
@@ -93,17 +99,21 @@ export class AuthService {
    * @param remoteAddress - ip address
    * @description Check if user have a session then update access token. If user don't have a session - create new session and return tokens
    */
-  private async handleUserSession(user: UserEntity, remoteAddress: string) {
+  private async handleUserSession(
+    user: UserEntity,
+    remoteAddress?: string,
+  ): Promise<{ accessToken: string; refreshToken?: string }> {
     const session = await this.sessionService.getByUser(user);
 
     if (session) {
       const tokens = await this.sessionService.update(session);
       return tokens;
+    } else {
+      const { accessToken, refreshToken } = await this.sessionService.create(
+        user,
+        remoteAddress,
+      );
+      return { accessToken, refreshToken };
     }
-    const { accessToken, refreshToken } = await this.sessionService.create(
-      user,
-      remoteAddress,
-    );
-    return { accessToken, refreshToken };
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, UserEntity, UserSessionEntity } from '../../../core';
+import { UserEntity, UserSessionEntity } from '../../../core';
 import { TokenService } from './token.service';
 import * as _ from 'lodash';
 
@@ -15,7 +15,7 @@ export class SessionService {
 
   async create(
     user: UserEntity,
-    remoteAddress: string,
+    remoteAddress?: string,
   ): Promise<UserSessionEntity> {
     const { id } = user;
 
