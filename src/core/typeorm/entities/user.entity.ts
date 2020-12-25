@@ -8,34 +8,34 @@ import { UserSessionEntity } from './userSession.entity';
 
 @Entity('users')
 export class UserEntity extends AbstractEntity implements User {
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: false })
   @Index()
   firstName: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   @Index()
   lastName: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: false })
   @Index({ unique: true })
   email: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: false })
   password: string;
 
-  @Column({ type: 'enum', enum: Roles })
+  @Column({ type: 'enum', enum: Roles, nullable: false })
   role: Roles;
 
-  @Column({ type: 'enum', enum: Gender })
+  @Column({ type: 'enum', enum: Gender, nullable: true })
   gender: Gender;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: false })
   phone: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   zipCode: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   @Index()
   address;
 
