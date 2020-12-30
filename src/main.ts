@@ -1,7 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from './modules/bootstrap/services/config.service';
-import { setupFilters, setupPipes, setupSwagger } from './setups';
+import {
+  setupFilters,
+  setupInterceptors,
+  setupPipes,
+  setupSwagger,
+} from './setups';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,6 +15,7 @@ async function bootstrap() {
 
   setupSwagger(app, 'Fluffy API', 'List of apis', '1.0.0');
   setupFilters(app);
+  setupInterceptors(app);
   setupPipes(app);
 
   const port = configService.isDevelopment
