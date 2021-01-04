@@ -4,10 +4,18 @@ import {
   Get,
   HttpStatus,
   Post,
+  Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { AuthUser, IpAddress, JwtAuthGuard, JwtPayload } from '../../core';
+import {
+  AuthUser,
+  IpAddress,
+  JwtAuthGuard,
+  JwtPayload,
+  JwtRefreshGuard,
+} from '../../core';
 import { LoginRequest } from './dto/login/login.request';
 import { AuthService } from './services/auth.service';
 import {
@@ -20,11 +28,15 @@ import {
 import { RegisterRequest } from './dto/register/register.request';
 import { LoginResponse } from './dto/login/login.response';
 import { RegisterResponse } from './dto/register/register.response';
+import { SessionService } from './services/session.service';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly sessionService: SessionService,
+  ) {}
 
   @Post('/login')
   @ApiResponse({
@@ -41,20 +53,21 @@ export class AuthController {
     return response;
   }
 
-  @Get('/refresh')
+  @Put('/refresh')
   @ApiUnauthorizedResponse({
     description: 'Return 401 if passed token is not valid',
   })
   @ApiOkResponse({
     description: 'Return tokens pair',
   })
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  async refresh(@AuthUser() user: JwtPayload) {
-    const { accessToken, refreshToken } = await this.authService.refreshToken(
-      user,
-    );
-    return { accessToken, refreshToken };
+  @UseGuards(JwtRefreshGuard)
+  async refresh(@Query('refreshToken') refreshToken: string) {
+    const payload = await this.sessionService.checkRefreshToken(refreshToken);
+    const response = await this.authService.refreshToken(payload);
+    return {
+      accessToken: response.accessToken,
+      refreshToken: response.refreshToken,
+    };
   }
 
   @Post('/register')

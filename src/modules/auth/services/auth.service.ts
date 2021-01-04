@@ -48,7 +48,7 @@ export class AuthService {
     payload: JwtPayload,
   ): Promise<{ accessToken: string; refreshToken?: string }> {
     const user = await IsEntityExist<UserEntity>(this.userRepo, {
-      email: payload.email,
+      id: payload.id,
     });
 
     const tokens = await this.handleUserSession(user);

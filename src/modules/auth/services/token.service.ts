@@ -38,6 +38,18 @@ export class TokenService {
     return refreshToken;
   }
 
+  async decodeRefresh(
+    token: string,
+  ): Promise<
+    | string
+    | {
+        [key: string]: any;
+      }
+  > {
+    const payload = await this.jwtService.decode(token);
+    return payload;
+  }
+
   async checkExpiration(token: string): Promise<any> {
     const payload = await this.jwtService.decode(token);
     return await isTokenTokenExpired(payload['exp']);
