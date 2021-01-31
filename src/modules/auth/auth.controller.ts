@@ -1,42 +1,25 @@
 import {
   Body,
   Controller,
-  Get,
   HttpStatus,
   Post,
-  Put,
-  Query,
-  Req,
-  UseGuards,
 } from '@nestjs/common';
-import {
-  AuthUser,
-  IpAddress,
-  JwtAuthGuard,
-  JwtPayload,
-  JwtRefreshGuard,
-} from '../../core';
 import { LoginRequest } from './dto/login/login.request';
 import { AuthService } from './services/auth.service';
 import {
-  ApiBearerAuth,
-  ApiOkResponse,
   ApiResponse,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { RegisterRequest } from './dto/register/register.request';
 import { LoginResponse } from './dto/login/login.response';
 import { RegisterResponse } from './dto/register/register.response';
-import { SessionService } from './services/session.service';
+import { RefreshSessionRequest } from './dto/refresh/refreshSession.request';
+import { RefreshSessionResponse } from './dto/refresh/refreshSession.response';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly sessionService: SessionService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('/login')
   @ApiResponse({
@@ -44,30 +27,20 @@ export class AuthController {
     description: 'Return tokens pair',
     type: LoginResponse,
   })
-  async login(@IpAddress() ipAddress: string, @Body() model: LoginRequest) {
-    const { accessToken, refreshToken } = await this.authService.login(
-      model,
-      ipAddress,
-    );
-    const response = new LoginResponse(accessToken, refreshToken);
-    return response;
-  }
+  async login(@Body() model: LoginRequest) {
+    try {
+      const result = await this.authService.login(model);
+      const accessToken = result.getAccessToken().getJwtToken();
+      const refreshToken = result.getRefreshToken().getToken();
+      const idToken = result.getIdToken().getJwtToken();
 
-  @Put('/refresh')
-  @ApiUnauthorizedResponse({
-    description: 'Return 401 if passed token is not valid',
-  })
-  @ApiOkResponse({
-    description: 'Return tokens pair',
-  })
-  @UseGuards(JwtRefreshGuard)
-  async refresh(@Query('refreshToken') refreshToken: string) {
-    const payload = await this.sessionService.checkRefreshToken(refreshToken);
-    const response = await this.authService.refreshToken(payload);
-    return {
-      accessToken: response.accessToken,
-      refreshToken: response.refreshToken,
-    };
+      const response = new LoginResponse(accessToken, refreshToken, idToken);
+
+      return response;
+    } catch (err) {
+      const { message } = err;
+      return { status: HttpStatus.BAD_REQUEST, message };
+    }
   }
 
   @Post('/register')
@@ -79,6 +52,26 @@ export class AuthController {
   async register(@Body() model: RegisterRequest) {
     const user = await this.authService.register(model);
     const response = new RegisterResponse(user);
+    return response;
+  }
+
+  @Post('/refresh')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Return updated tokens',
+    type: RefreshSessionResponse,
+  })
+  async refreshSession(@Body() model: RefreshSessionRequest) {
+    const { idToken, refreshToken } = model;
+
+    const result = await this.authService.refreshSession(idToken, refreshToken);
+
+    const response = new RefreshSessionResponse(
+      result.getAccessToken().getJwtToken(),
+      result.getRefreshToken().getToken(),
+      result.getIdToken().getJwtToken(),
+    );
+
     return response;
   }
 }

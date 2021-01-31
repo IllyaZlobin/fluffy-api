@@ -1,4 +1,5 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -6,17 +7,16 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UserEntity } from 'src/core';
-import { AuthUser, JwtAuthGuard, JwtPayload } from '../../core/nest';
-import { UserService } from './services/user.service';
+import { AuthUser, JwtPayload } from '../../core/nest';
 
 @Controller('user')
 @ApiTags('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor() {}
 
   @Get('/me')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @ApiUnauthorizedResponse({
     description: 'Return 401 if passed token is not valid',
   })
@@ -24,8 +24,7 @@ export class UserController {
     description: 'Return user',
     type: UserEntity,
   })
-  async getUser(@AuthUser() user: JwtPayload): Promise<UserEntity> {
-    const response = await this.userService.getById(user.id);
-    return response;
+  async getUser(@AuthUser() user: JwtPayload): Promise<JwtPayload> {
+    return user;
   }
 }

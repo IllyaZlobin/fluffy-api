@@ -13,7 +13,6 @@ import { RegisterRequest } from '../dto/register/register.request';
 import { UserService } from 'src/modules/user/services/user.service';
 import {
   AuthenticationDetails,
-  CognitoAccessToken,
   CognitoIdToken,
   CognitoRefreshToken,
   CognitoUser,
