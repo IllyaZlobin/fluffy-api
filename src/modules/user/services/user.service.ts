@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsEntityExist, Roles, User, UserEntity } from '../../../core';
+import { CountryEntity, IsEntityExist, Roles, User, UserEntity } from '../../../core';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -15,12 +15,12 @@ export class UserService {
 
     user.firstName = model.firstName;
     user.email = model.email;
-    await user.setPassword(model.password);
+    user.country = model.country
     user.role = Roles.USER;
     user.phone = model.phone;
+    user.sub = model.sub;
 
     const result = await this.userRepo.save(user);
-
     return result;
   }
 
