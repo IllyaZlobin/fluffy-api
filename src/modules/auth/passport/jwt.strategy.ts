@@ -1,34 +1,45 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { JwtPayload, TokenType } from 'src/core';
+import { IsEntityExist, JwtPayload, UserEntity } from 'src/core';
 import { ConfigService } from 'src/modules/bootstrap/services/config.service';
-import { UserService } from 'src/modules/user/services/user.service';
-import { SessionService } from '../services/session.service';
+import { passportJwtSecret } from 'jwks-rsa';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly configService: ConfigService,
-    private readonly sessionService: SessionService,
-    private readonly userService: UserService,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
   ) {
     super({
+      secretOrKeyProvider: passportJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: `${configService.getCognitoConfig.authority}/.well-known/jwks.json`,
+      }),
+
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: configService.get('jwt_secret'),
+      audience: configService.getCognitoConfig.clientId,
+      issuer: configService.getCognitoConfig.authority,
+      algorithms: ['RS256'],
     });
   }
 
   public async validate(payload: JwtPayload) {
-    const { id, type } = payload;
+    const { sub, email } = payload;
 
-    const user = await this.userService.getById(id);
-    const session = await this.sessionService.getByUser(user);
+    const user = await IsEntityExist<UserEntity>(this.userRepository, {
+      sub,
+      email,
+    });
 
-    if (type != TokenType.ACCESS || !user || !session) {
-      throw new ForbiddenException('Wrong access token');
-    } else {
+    if (user && !!payload.sub) {
       return payload;
+    } else {
     }
   }
 }
