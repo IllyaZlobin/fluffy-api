@@ -56,4 +56,20 @@ export class ConfigService {
       seeds: ['src/core/typeorm/seeds/**/*{.ts,.js}'],
     } as TypeOrmModuleOptions;
   }
+
+  get getCognitoConfig(): {
+    userPoolId: string;
+    clientId: string;
+    region: string;
+    authority: string;
+  } {
+    return {
+      userPoolId: this.get('cognito_user_pool_id'),
+      clientId: this.get('cognito_client_id'),
+      region: this.get('cognito_region'),
+      authority: `https://cognito-idp.${this.get(
+        'cognito_region',
+      )}.amazonaws.com/${this.get('cognito_user_pool_id')}`,
+    };
+  }
 }
