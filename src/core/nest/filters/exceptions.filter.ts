@@ -7,7 +7,7 @@ import {
 import { BaseExceptionFilter } from '@nestjs/core';
 import { FriendlyHttpException } from '../exceptions';
 import { ValidationException } from '../exceptions/validation.exception';
-import { BaseResponse, ValidationError } from '../interfaces';
+import { ValidationError } from '../interfaces';
 
 @Catch()
 export class ExceptionsFilter extends BaseExceptionFilter {
@@ -55,9 +55,8 @@ export class ExceptionsFilter extends BaseExceptionFilter {
     }
   }
 
-  private getApiResponse(errors: ValidationError[]): BaseResponse<null> {
+  private getApiResponse(errors: ValidationError[]) {
     return {
-      data: null,
       errors,
     };
   }
