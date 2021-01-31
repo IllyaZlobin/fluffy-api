@@ -1,20 +1,13 @@
-import {
-  Body,
-  Controller,
-  HttpStatus,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 import { LoginRequest } from './dto/login/login.request';
 import { AuthService } from './services/auth.service';
-import {
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RegisterRequest } from './dto/register/register.request';
 import { LoginResponse } from './dto/login/login.response';
 import { RegisterResponse } from './dto/register/register.response';
 import { RefreshSessionRequest } from './dto/refresh/refreshSession.request';
 import { RefreshSessionResponse } from './dto/refresh/refreshSession.response';
+import { FriendlyHttpException } from 'src/core';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -39,7 +32,7 @@ export class AuthController {
       return response;
     } catch (err) {
       const { message } = err;
-      return { status: HttpStatus.BAD_REQUEST, message };
+      throw new FriendlyHttpException(HttpStatus.BAD_REQUEST, message);
     }
   }
 

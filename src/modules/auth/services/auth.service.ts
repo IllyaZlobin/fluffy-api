@@ -35,15 +35,28 @@ export class AuthService {
   async login(model: LoginRequest): Promise<CognitoUserSession> {
     const { email, password } = model;
 
+    const user = IsEntityExist<UserEntity>(this.userRepo, { email });
+
+    if (!user) {
+      throw new FriendlyHttpException(
+        HttpStatus.NOT_FOUND,
+        'User is not found',
+        ['email'],
+      );
+    }
+
     const authDetails = new AuthenticationDetails({
       Username: email,
       Password: password,
     });
 
-    const user = new CognitoUser({ Pool: this.cognitoPool, Username: email });
+    const cognitoUser = new CognitoUser({
+      Pool: this.cognitoPool,
+      Username: email,
+    });
 
     const result = new Promise((res, rej) => {
-      user.authenticateUser(authDetails, {
+      cognitoUser.authenticateUser(authDetails, {
         onSuccess: result => {
           res(result);
         },
