@@ -1,13 +1,12 @@
 import { Gender, Roles } from '../enums';
 import { BaseEntity } from './baseEntity';
-import { Country } from './country.model';
-import { UserSession } from './userSession.model';
+import { Country } from './country.model'
 
 export interface User extends BaseEntity {
   firstName?: string;
   lastName?: string;
   email?: string;
-  password?: string;
+  sub?: string;
   role?: Roles;
   gender?: Gender;
   phone?: string;
@@ -15,5 +14,4 @@ export interface User extends BaseEntity {
   zipCode?: string;
   address?: string;
   country?: Country;
-  sessions?: UserSession[];
 }
