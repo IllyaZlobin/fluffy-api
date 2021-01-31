@@ -21,8 +21,9 @@ export class ExceptionsFilter extends BaseExceptionFilter {
 
     if (exception instanceof FriendlyHttpException) {
       const status = exception.getStatus();
+      const friendlyStatus = exception.friendlyStatus;
       const apiResponse = this.getApiResponse([
-        { message: exception.message, property: exception.property },
+        { status: friendlyStatus, message: exception.message, property: exception.property },
       ]);
       response.status(status).json(apiResponse);
       return;

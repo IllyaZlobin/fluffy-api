@@ -35,8 +35,7 @@ export class AuthService {
   async login(model: LoginRequest): Promise<CognitoUserSession> {
     const { email, password } = model;
 
-    const user = IsEntityExist<UserEntity>(this.userRepo, { email });
-
+    const user = await IsEntityExist<UserEntity>(this.userRepo, { email });
     if (!user) {
       throw new FriendlyHttpException(
         HttpStatus.NOT_FOUND,
@@ -44,7 +43,6 @@ export class AuthService {
         ['email'],
       );
     }
-
     const authDetails = new AuthenticationDetails({
       Username: email,
       Password: password,

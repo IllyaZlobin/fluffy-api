@@ -31,8 +31,11 @@ export class AuthController {
 
       return response;
     } catch (err) {
-      const { message } = err;
-      throw new FriendlyHttpException(HttpStatus.BAD_REQUEST, message);
+      const { message, friendlyStatus } = err;
+      throw new FriendlyHttpException(
+        friendlyStatus ? friendlyStatus : HttpStatus.BAD_REQUEST,
+        message,
+      );
     }
   }
 
