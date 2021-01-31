@@ -53,7 +53,7 @@ export class AuthService {
       Username: email,
     });
 
-    const result = new Promise((res, rej) => {
+    const result = new Promise<CognitoUserSession>((res, rej) => {
       cognitoUser.authenticateUser(authDetails, {
         onSuccess: result => {
           res(result);
@@ -64,17 +64,7 @@ export class AuthService {
       });
     });
 
-    const {
-      getAccessToken,
-      getIdToken,
-      getRefreshToken,
-    } = (await result) as CognitoUserSession;
-
-    return new CognitoUserSession({
-      AccessToken: getAccessToken(),
-      IdToken: getIdToken(),
-      RefreshToken: getRefreshToken(),
-    });
+    return result;
   }
 
   async register(model: RegisterRequest) {
