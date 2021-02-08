@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CountryEntity, IsEntityExist, Roles, User, UserEntity } from '../../../core';
+import {
+  CountryEntity,
+  IsEntityExist,
+  Roles,
+  User,
+  UserEntity,
+} from '../../../core';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -15,7 +21,7 @@ export class UserService {
 
     user.firstName = model.firstName;
     user.email = model.email;
-    user.country = model.country
+    user.country = model.country;
     user.role = Roles.USER;
     user.phone = model.phone;
     user.sub = model.sub;
@@ -29,11 +35,13 @@ export class UserService {
     return user;
   }
 
-  async getUser(email: string, sub?: string): Promise<UserEntity {
-    const user = await this.userRepo.findOne({where: {
-      email,
-      sub,
-    }});
+  async getUser(email: string, sub?: string): Promise<UserEntity> {
+    const user = await this.userRepo.findOne({
+      where: {
+        email,
+        sub,
+      },
+    });
 
     return user;
   }
