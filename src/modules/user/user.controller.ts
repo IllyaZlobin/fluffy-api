@@ -8,11 +8,12 @@ import {
 } from '@nestjs/swagger';
 import { UserEntity } from 'src/core';
 import { AuthUser, JwtPayload } from '../../core/nest';
+import { UserService } from './services/user.service';
 
 @Controller('user')
 @ApiTags('user')
 export class UserController {
-  constructor() {}
+  constructor(private userService: UserService) {}
 
   @Get('/me')
   @ApiBearerAuth()
@@ -24,7 +25,9 @@ export class UserController {
     description: 'Return user',
     type: UserEntity,
   })
-  async getUser(@AuthUser() user: JwtPayload): Promise<JwtPayload> {
-    return user;
+  async getUser(@AuthUser() user: JwtPayload): Promise<UserEntity> {
+    const { email, sub } = user;
+    const response = this.userService.getUser(email, sub);
+    return response;
   }
 }

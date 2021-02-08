@@ -28,4 +28,13 @@ export class UserService {
     const user = IsEntityExist<UserEntity>(this.userRepo, { id });
     return user;
   }
+
+  async getUser(email: string, sub?: string): Promise<UserEntity {
+    const user = await this.userRepo.findOne({where: {
+      email,
+      sub,
+    }});
+
+    return user;
+  }
 }
