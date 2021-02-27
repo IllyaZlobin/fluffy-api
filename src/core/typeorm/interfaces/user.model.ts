@@ -1,6 +1,8 @@
 import { Gender, Roles } from '../enums';
+import { Advert } from './advert.model';
 import { BaseEntity } from './baseEntity';
 import { Country } from './country.model'
+import { Pet } from './pet.model';
 
 export interface User extends BaseEntity {
   firstName?: string;
@@ -14,4 +16,7 @@ export interface User extends BaseEntity {
   zipCode?: string;
   address?: string;
   country?: Country;
+
+  pets?: Pet[]
+  adverts?: Advert[];
 }
