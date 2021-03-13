@@ -23,6 +23,8 @@ async function bootstrap() {
     : configService.get('port');
   const env = configService.get('env');
 
+  app.enableCors();
+
   await app.listen(port);
 
   console.log(`APP RUN ON ${port}, ENV - ${env}`);
