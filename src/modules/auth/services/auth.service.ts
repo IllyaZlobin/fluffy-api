@@ -32,7 +32,9 @@ export class AuthService {
     private cognitoPool: CognitoUserPool,
   ) {}
 
-  async login(model: LoginRequest): Promise<CognitoUserSession> {
+  async login(
+    model: LoginRequest,
+  ): Promise<{ user: UserEntity; cognitoUserSession: CognitoUserSession }> {
     const { email, password } = model;
 
     const user = await IsEntityExist<UserEntity>(this.userRepo, { email });
@@ -64,7 +66,9 @@ export class AuthService {
       });
     });
 
-    return result;
+    const cognitoUserSession = await result;
+
+    return { user, cognitoUserSession };
   }
 
   async register(model: RegisterRequest) {

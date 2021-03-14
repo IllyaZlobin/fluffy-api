@@ -22,12 +22,17 @@ export class AuthController {
   })
   async login(@Body() model: LoginRequest) {
     try {
-      const result = await this.authService.login(model);
-      const accessToken = result.getAccessToken().getJwtToken();
-      const refreshToken = result.getRefreshToken().getToken();
-      const idToken = result.getIdToken().getJwtToken();
+      const { cognitoUserSession, user } = await this.authService.login(model);
+      const accessToken = cognitoUserSession.getAccessToken().getJwtToken();
+      const refreshToken = cognitoUserSession.getRefreshToken().getToken();
+      const idToken = cognitoUserSession.getIdToken().getJwtToken();
 
-      const response = new LoginResponse(accessToken, refreshToken, idToken);
+      const response = new LoginResponse(
+        user,
+        accessToken,
+        refreshToken,
+        idToken,
+      );
 
       return response;
     } catch (err) {
