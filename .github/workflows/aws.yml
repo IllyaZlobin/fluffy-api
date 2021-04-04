@@ -26,7 +26,7 @@ jobs:
       uses: easingthemes/ssh-deploy@v2.1.1
       env:
           SSH_PRIVATE_KEY: ${{ secrets.AWS_EC2_RSA }}
-          ARGS: "-rltgoDzvO --delete --exclude 'node_modules' --exclude '.git'"
+          ARGS: "-rltgoDzvO --delete --exclude 'node_modules'"
           SOURCE: "/"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
