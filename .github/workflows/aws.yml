@@ -1,0 +1,40 @@
+on:
+  push:
+    branches:
+      - main    
+
+name: Deploy to Amazon EC2
+
+env: 
+  DOMAIN: dev.fluffy.api
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      
+    - name: Install Dependecies
+      run: npm install typescript && npm install
+      
+    - name: Run Build
+      run: npm run build
+      
+    - name: Deploy to Server
+      uses: easingthemes/ssh-deploy@v2.1.1
+      env:
+          SSH_PRIVATE_KEY: ${{ secrets.AWS_EC2_RSA }}
+          ARGS: "-rltgoDzvO --delete --exclude 'node_modules' --exclude '.git'"
+          SOURCE: "/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ~/${{ env.DOMAIN }}
+    - name: Launch App
+      uses: garygrossgarten/github-action-ssh@release
+      with:
+        command: cd ${{ env.DOMAIN }} && (pm2 delete ${{ env.DOMAIN }} || true) && pm2 start ecosystem.config.js --only ${{ env.DOMAIN }}
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        privateKey: ${{ secrets.AWS_EC2_RSA }}
