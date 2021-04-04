@@ -8,6 +8,8 @@ import {
   setupSwagger,
 } from './setups';
 
+import * as AWS from 'aws-sdk'
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 

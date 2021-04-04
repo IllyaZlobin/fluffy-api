@@ -1,5 +1,5 @@
 import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
-import { Gender } from '../enums';
+import { Gender, PetType } from '../enums';
 import { Advert, Gallery, Pet, User } from '../interfaces';
 import { AbstractEntity } from './abstract.entity';
 import { AdvertEntity } from './advert.entity';
@@ -34,9 +34,9 @@ export class PetEntity extends AbstractEntity implements Pet {
   @Index()
   description!: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'enum', enum: PetType, nullable: false })
   @Index()
-  type!: string;
+  type!: PetType;
 
   @Column({ type: 'bool', nullable: false, default: false })
   @Index()
@@ -58,11 +58,11 @@ export class PetEntity extends AbstractEntity implements Pet {
     () => GalleryEntity,
     gallery => gallery.pet,
   )
-  gallery: Gallery[];
+  gallery?: Gallery[];
 
   @OneToMany(
     () => AdvertEntity,
     advert => advert.pet,
   )
-  adverts: Advert[];
+  adverts?: Advert[];
 }

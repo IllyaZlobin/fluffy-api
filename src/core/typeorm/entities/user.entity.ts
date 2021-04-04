@@ -31,8 +31,8 @@ export class UserEntity extends AbstractEntity implements User {
   @Column({ type: 'enum', enum: Gender, nullable: true })
   gender?: Gender;
 
-  @Column({ type: 'varchar', nullable: false })
-  phone!: string;
+  @Column({ type: 'varchar', nullable: true })
+  phone?: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
   zipCode?: string;

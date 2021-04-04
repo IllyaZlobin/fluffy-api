@@ -5,3 +5,7 @@ export * from './exceptions';
 export * from './filters';
 export * from './interfaces';
 export * from './helpers';
+export * from './aws';
+export * from './upload';
+export * from './constants';
+export * from './pipes';

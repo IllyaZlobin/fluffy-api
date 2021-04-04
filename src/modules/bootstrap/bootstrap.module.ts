@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from './services/config.service';
+import { S3Service } from './services/s3.service';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { ConfigService } from './services/config.service';
       imports: [BootstrapModule]
     }),
   ],
-  providers: [ConfigService],
-  exports: [ConfigService],
+  providers: [ConfigService, S3Service],
+  exports: [ConfigService, S3Service],
 })
 export class BootstrapModule {}

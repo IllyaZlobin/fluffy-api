@@ -1,4 +1,11 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { LoginRequest } from './dto/login/login.request';
 import { AuthService } from './services/auth.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -7,7 +14,12 @@ import { LoginResponse } from './dto/login/login.response';
 import { RegisterResponse } from './dto/register/register.response';
 import { RefreshSessionRequest } from './dto/refresh/refreshSession.request';
 import { RefreshSessionResponse } from './dto/refresh/refreshSession.response';
-import { FriendlyHttpException } from 'src/core';
+import {
+  AuthUser,
+  FriendlyHttpException,
+  JwtAuthGuard,
+  UserEntity,
+} from '../../core';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -57,6 +69,7 @@ export class AuthController {
   }
 
   @Post('/refresh')
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Return updated tokens',
@@ -74,5 +87,11 @@ export class AuthController {
     );
 
     return response;
+  }
+
+  @Get('/callback')
+  @UseGuards(JwtAuthGuard)
+  async callback(@AuthUser() user: UserEntity) {
+    return user;
   }
 }

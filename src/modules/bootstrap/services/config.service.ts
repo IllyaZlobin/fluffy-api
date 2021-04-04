@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
+import { IS3Config } from '../../../core';
 import { DatabaseEntities } from '../../../core/typeorm/entities';
 
 @Injectable()
@@ -70,6 +71,14 @@ export class ConfigService {
       authority: `https://cognito-idp.${this.get(
         'cognito_region',
       )}.amazonaws.com/${this.get('cognito_user_pool_id')}`,
+    };
+  }
+
+  get s3Config(): IS3Config {
+    return {
+      accessKeyId: this.get('AWS_ACCESS_KEY_ID'),
+      secretAccessKey: this.get('AWS_SECRET_ACCESS_KEY'),
+      bucketName: this.get('AWS_BUCKET_NAME'),
     };
   }
 }
