@@ -34,3 +34,4 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 rootkey.csv
+fluffy_api_pairs.pem
