@@ -21,8 +21,8 @@ async function bootstrap() {
   setupPipes(app);
 
   const port = configService.isDevelopment
-    ? configService.get('PORT')
-    : configService.get('port');
+    ? 3100
+    : 3000;
   const env = configService.get('env');
 
   app.enableCors();
