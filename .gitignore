@@ -35,3 +35,4 @@ lerna-debug.log*
 
 rootkey.csv
 fluffy_api_pairs.pem
+fluffy_api_private_key.ppk
