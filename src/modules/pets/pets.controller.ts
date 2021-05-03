@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   UploadedFile,
   UseGuards,
@@ -38,6 +40,14 @@ export class PetsController {
     const pet = await this.petService.create({ ...model, user, photo });
     const response = new CreatePetResponse(pet);
     return response;
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async delete(@Param('id') id: number) {
+    await this.petService.delete(id);
+    return 'Pet is deleted';
   }
 
   @Get('/')

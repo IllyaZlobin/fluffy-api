@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
-import { FriendlyHttpException, PetEntity } from '../../core';
+import { FriendlyHttpException, IsEntityExist, PetEntity } from '../../core';
 import { Connection, Repository } from 'typeorm';
 import { CreatePetRequest } from './dto';
 import { S3Service } from '../bootstrap/services/s3.service';
@@ -41,8 +41,30 @@ export class PetsService {
     }
   }
 
+  async delete(id: number): Promise<void> {
+    const queryRunner = this.connection.createQueryRunner();
+    const pet = await IsEntityExist<PetEntity>(this.petRepository, { id });
+
+    if (!pet)
+      throw new FriendlyHttpException(HttpStatus.NOT_FOUND, 'Pet id is not exist', [
+        'id',
+      ]);
+    try {
+      await queryRunner.startTransaction();
+      await this.s3Service.deleteImages([pet.photo]);
+      await this.petRepository.delete(pet.id);
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new FriendlyHttpException(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        err.message,
+      );
+    }
+  }
+
   async getAll(): Promise<PetEntity[]> {
-    const pets = await this.petRepository.find({relations: ['user']});
+    const pets = await this.petRepository.find({ relations: ['user'] });
     return pets;
   }
 }
