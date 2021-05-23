@@ -27,7 +27,7 @@ async function bootstrap() {
 
   app.enableCors();
 
-  await app.listen(port);
+  await app.listen(process.env.PORT);
 
   console.log(`APP RUN ON ${port}, ENV - ${env}`);
 }
